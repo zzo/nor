@@ -1,4 +1,5 @@
 *.class
+test.js
 
 # Package Files #
 *.jar
