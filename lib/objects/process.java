@@ -83,24 +83,20 @@ public class process extends ScriptableObject {
 
     @SuppressWarnings("unchecked")
     private static Scriptable loadThatShit(Context cx, Scriptable sc, String module) {
+        Scriptable newObj = null;
         try {
             //Scriptable scope = ScriptableObject.getTopLevelScope(sc);
             Class clz = Class.forName(module);
             Method getObj = clz.getMethod("getObject", 
                 new Class[] { cx.getClass(), Class.forName("org.mozilla.javascript.Scriptable") }
             );
-            Scriptable newObj = (Scriptable)getObj.invoke(null, new Object[] { cx, sc });
-            return newObj;
-            
-            //ScriptableObject.defineClass(scope, (Class)Class.forName(module));
-            //Scriptable newObj = cx.newObject(scope, module);
-            //return newObj;
+            newObj = (Scriptable)getObj.invoke(null, new Object[] { cx, sc });
         } catch (Exception e) {
             System.err.println("Error loading module: " + module);
             System.err.println(e.toString());
             e.printStackTrace();
-
-            return null;
         }
+
+        return newObj;
     }
 }
