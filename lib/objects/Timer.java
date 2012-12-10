@@ -5,8 +5,22 @@ import java.util.TimerTask;
 public class Timer extends ScriptableObject {
     private static final long serialVersionUID = 34297528888642L;
     private java.util.Timer timer;
+ 
+     class DoneTask extends TimerTask {
+        Scriptable thisObj;
 
-    public Timer() {}
+        public DoneTask(Scriptable thisObj) {
+            this.thisObj = thisObj;
+        }
+
+        public void run() {
+            // Call 'ontimeout' on this...
+            ((ScriptableObject)thisObj).callMethod(this.thisObj, "ontimeout", null);
+            //timer.cancel(); //Terminate the timer thread
+        }
+    }
+
+   public Timer() {}
 
     public void jsConstructor() {
         timer = new java.util.Timer();
@@ -20,7 +34,7 @@ public class Timer extends ScriptableObject {
         int timeout = ((Double)args[0]).intValue();
         boolean repeat = ((Boolean)args[1]).booleanValue();
 
-        TimerTask timerTask = new DoneTask(cx, thisObj);
+        TimerTask timerTask = new DoneTask(thisObj);
 
         if (repeat) {
             timer.schedule(timerTask, timeout, timeout);
@@ -33,8 +47,6 @@ public class Timer extends ScriptableObject {
         timer.cancel();
     }
 
-    //    String[] globalFuncs  = { "close", "start", "stop" };
-    //
     @Override
     public String getClassName() { return "Timer"; }
 }

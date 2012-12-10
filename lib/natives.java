@@ -1,10 +1,12 @@
 import org.mozilla.javascript.*;
-import java.io.File;
-import java.io.FileReader;
 import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class natives {
     private static final long serialVersionUID = 298970592547642L;
+    // Wish i could figure these out dynamically but since bundled in jar cannot?
+    private static String[] node_natives = new String[] { "_debugger.js", "_linklist.js", "assert.js", "buffer.js", "buffer_ieee754.js", "child_process.js", "cluster.js", "console.js", "constants.js", "crypto.js", "dgram.js", "dns.js", "domain.js", "events.js", "freelist.js", "fs.js", "http.js", "https.js", "module.js", "net.js", "os.js", "path.js", "punycode.js", "querystring.js", "readline.js", "repl.js", "stream.js", "string_decoder.js", "sys.js", "timers.js", "tls.js", "tty.js", "url.js", "util.js", "vm.js", "zlib.js" };
 
     public static Scriptable getObject(Context cx, Scriptable scope) {
         Scriptable newObj = cx.newObject(scope);
@@ -13,22 +15,22 @@ public class natives {
     }
 
     public static void loadNatives(ScriptableObject me) {
-        File nativeDir = new File("node_natives");
-        File[] nativesjs = nativeDir.listFiles();
-        for (int i = 0; i < nativesjs.length; i++) {
+        for (int i = 0; i < node_natives.length; i++) {
             try {
-                BufferedReader br = new BufferedReader(new FileReader(nativesjs[i]));
+                InputStream input = natives.class.getResourceAsStream("node_natives/" + node_natives[i]);
+                BufferedReader br = new BufferedReader(new InputStreamReader(input));
+
                 StringBuffer sb = new StringBuffer();
                 String sCurrentLine;
                 while ((sCurrentLine = br.readLine()) != null) {
                     sb.append(sCurrentLine + "\n");
                 }
     
-                String name = nativesjs[i].getName().replace(".js", "");
+                String name = node_natives[i].replace(".js", "");
                 me.put(name, me, sb.toString());
 
             } catch (java.io.FileNotFoundException e) {
-                System.err.println("Cannot load native module: " + nativesjs[i].getName());
+                System.err.println("Cannot load native module: " + node_natives[i]);
             } catch (java.io.IOException io) {
                 System.err.println("IOException loading native module: " + io.toString());
             }

@@ -33,7 +33,7 @@ public class RunJS {
       String filename = (String)args[0];
 
       // First try native object (maybe pass something in different for these?)
-      InputStream input = Class.forName("RunJS").getResourceAsStream(baseDir + "lib/" + filename + ".js");
+      InputStream input = Class.forName("RunJS").getResourceAsStream(baseDir + "../lib/" + filename + ".js");
       if (input == null) {
         // no dice - local?
         File f = new File(filename);
@@ -111,7 +111,7 @@ public class RunJS {
       ScriptableObject.putProperty(scope, "arguments", arguments);
 
       // Load up globals
-      loadGlobals(cx, scope);
+      //loadGlobals(cx, scope);
 
       // Suck in filename
       mainFile = args[0];
