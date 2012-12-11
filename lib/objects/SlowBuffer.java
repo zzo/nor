@@ -1,15 +1,14 @@
 import org.mozilla.javascript.*;
-/*
-import org.mozilla.javascript.annotations.JSConstructor;
-import org.mozilla.javascript.annotations.JSFunction;
-import org.mozilla.javascript.annotations.JSGetter;
-*/
-public class SlowBuffer extends Buff {
+
+public class SlowBuffer extends ScriptableObject {
     private static final long serialVersionUID = 34297528888642L;
     private StringBuffer buffer;
 
     public void jsConstructor(int length) {
-        this.buffer = new StringBuffer(length);
+        //System.out.println("JS CONS SLOW BUFFER: " + length);
+        //this.buffer = new StringBuffer(length);
+        this.associateValue("buffer", new StringBuffer(length));
+        //System.out.println("done JS CONS SLOW BUFFER: " + length);
     }
 
     // be smarter
@@ -20,22 +19,66 @@ public class SlowBuffer extends Buff {
     }
 
     // Need to figure out what to do here
-    public static Scriptable jsStaticFunction_makeFastBuffer(
+    public static void jsStaticFunction_makeFastBuffer(
             Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-        return (Scriptable)args[1];  // 'this'
+
+        /*
+        Scriptable scope = ScriptableObject.getTopLevelScope(thisObj);
+
+        Scriptable parent = (Scriptable)args[0];
+        Scriptable me = (Scriptable)args[1];
+        int offset = ((Double)args[2]).intValue();
+        int length = ((Integer)args[3]).intValue();
+
+        System.out.println("PARENT: " + ((ScriptableObject)args[0]).getClassName());
+        System.out.println("ME: " + ((ScriptableObject)args[1]).getClassName());
+        System.out.println("offset: " + offset);
+        System.out.println("length: " + length);
+        //System.out.println(ScriptableObject.callMethod((ScriptableObject)parent, "getBuffer", new Object[]{}));
+        System.out.println("ASS: " + ((ScriptableObject)parent).getAssociatedValue("buffer"));
+        */
+
+        /*
+        // slice what we got
+        StringBuffer currentBuffer = (StringBuffer)((ScriptableObject)parent).getAssociatedValue("buffer");
+        String newstr = currentBuffer.substring(offset, length);
+
+        System.out.println("NEW BUFFER: " + newstr);
+
+        // Create new buffer obj w/new string
+        //Scriptable newObj = cx.newObject(scope, "Buffer", new Object[] { new Integer(newstr.length()) });
+        Scriptable newObj = cx.newObject(scope, "Buffer", new Object[] { "mark" });
+
+        System.out.println("SET ASS");
+        ((StringBuffer)((ScriptableObject)newObj).getAssociatedValue("buffer")).append(newstr);
+
+        System.out.println("RETURN NEW OBJ");
+        //return newObj;
+        */
+        //return (Scriptable)args[1];
     }
 
-    public static int jsFunction_utf8Write(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-        int offset = ((Double)args[1]).intValue();
-        int maxlen = 0;
+    // write into this buffer at offset
+    //public int jsFunction_utf8Write(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+    public int jsFunction_utf8Write(String str, int offset, int length) {
 
-        if (args.length > 1) {
-            maxlen = ((Double)args[2]).intValue();
-        }
+        /*
+        System.out.println("str now: " + str);
+        System.out.println("off now: " + offset);
+        System.out.println("len now: " + length);
+        System.out.println("buff len: " + this.buffer.length());
+        */
 
-        System.out.print(args[0].toString());
-        return args[0].toString().length();
+        ((StringBuffer)this.getAssociatedValue("buffer")).insert(offset, str);
+        //System.out.println("buffer now: " + ((StringBuffer)this.getAssociatedValue("buffer")));
+        return str.length();
     }
+
+    /*
+    public StringBuffer jsGet_buffer() {
+        return this.buffer;
+    }
+    */
 
     @Override
     public String getClassName() { return "SlowBuffer"; }

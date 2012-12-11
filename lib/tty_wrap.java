@@ -7,7 +7,7 @@ public class tty_wrap {
         ScriptableObject newObj = (ScriptableObject)cx.newObject(scope);
         ScriptableObject.defineClass(newObj, TTY.class);
 
-        String[] isTTY  = { "isTTY", "guessHandleType" };
+        String[] isTTY  = new String[] { "isTTY", "guessHandleType" };
         newObj.defineFunctionProperties(isTTY, tty_wrap.class, ScriptableObject.EMPTY); 
 
         return (Scriptable)newObj;
@@ -30,10 +30,14 @@ public class tty_wrap {
 
     public static String guessHandleType(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
         int fd = ((Double)args[0]).intValue();
+        System.out.println("GUESS HANDLE TYEPF of " + fd);
+
         if (isaTTY(fd)) {
+        System.out.println("it's a TTY " + fd);
             return "TTY";
         }
 
+        System.out.println("it's a FILE " + fd);
         return "FILE";
     }
 

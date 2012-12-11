@@ -231,7 +231,6 @@
     var nextTickIndex = 0;
 
     process._tickCallback = function() {
-        console.log("in tick callback");
       var nextTickLength = nextTickQueue.length;
       if (nextTickLength === 0) return;
 

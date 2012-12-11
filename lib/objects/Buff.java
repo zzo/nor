@@ -6,24 +6,31 @@ import org.mozilla.javascript.annotations.JSGetter;
 */
 public class Buff extends ScriptableObject {
     private static final long serialVersionUID = 34297528888642L;
+    public StringBuffer buffer;
+
+    public static Object jsConstructor(Context cx, Object[] args, Function ctorObj, boolean inNewExpr) {
+        System.out.println("IN BUFF CONS");
+        //this.buffer = new StringBuffer();
+        //((ScriptableObject)thisObj).associateValue("buffer", new StringBuffer());
+        return null;
+    }
 
     /*
     public void jsConstructor(int length) {
-        System.out.println("JSCONS BUFF");
-    }
-
-    public static int jsFunction_utf8Write(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-        int offset = ((Double)args[1]).intValue();
-        int maxlen = 0;
-
-        if (args.length > 1) {
-            maxlen = ((Double)args[2]).intValue();
-        }
-
-        System.out.print(args[0].toString());
-        return args[0].toString().length();
+        System.out.println("Buffer cons : " + length);
+        this.buffer = new StringBuffer(length);
+        this.associateValue("buffer", buffer);
     }
     */
+
+    public String jsFunction_getBuffer() {
+        System.err.println("GET BUFFER in Buffer");
+        return this.buffer.toString();
+    }
+
+    public StringBuffer jsGet_buffer() {
+        return this.buffer;
+    }
 
     @Override
     public String getClassName() { return "Buffer"; }
