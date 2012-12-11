@@ -9,7 +9,7 @@ runtest: runjs test.js
 	java -jar node.jar test.js
 
 runnode: runjs node.js
-	java -jar node.jar node.js
+	java -jar node.jar node.js test.js
 
 clean: 
 	/bin/rm -rf classes/* node.jar

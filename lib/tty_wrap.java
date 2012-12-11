@@ -14,30 +14,30 @@ public class tty_wrap {
     }
 
     public static boolean isaTTY(int fd) {
-        String script = "if [ -t " + fd + " ] ; then exit 1; fi";
-        try {
-            Process proc = Runtime.getRuntime().exec(script);
-            if (proc.exitValue() > 0) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch(Exception e) {
-            return false; // throw runtime excep?
-        }
-
+       if (System.console() != null) {
+           return true;
+       } else {
+           return false;
+       }
     }
 
     public static String guessHandleType(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
         int fd = ((Double)args[0]).intValue();
-        System.out.println("GUESS HANDLE TYEPF of " + fd);
+        if (args[0].toString().equals("0")) {
+            System.out.println("CHECK STDIN");
+        }
 
+        if (args[0].toString().equals("1")) {
+            System.out.println("CHECK STDOUT");
+        }
+
+        if (args[0].toString().equals("0")) {
+            System.out.println("CHECK STDERR");
+        }
         if (isaTTY(fd)) {
-        System.out.println("it's a TTY " + fd);
             return "TTY";
         }
 
-        System.out.println("it's a FILE " + fd);
         return "FILE";
     }
 

@@ -1,4 +1,5 @@
 import org.mozilla.javascript.*;
+import java.io.File;
 
 public class fs {
     private static final long serialVersionUID = 199970599527937692L;
@@ -7,7 +8,7 @@ public class fs {
         ScriptableObject newObj = (ScriptableObject)cx.newObject(scope);
         ScriptableObject.defineClass(newObj, Stats.class);
 
-        String[] globalFuncs = new String[] { "write" };
+        String[] globalFuncs = new String[] { "write", "stat" };
         newObj.defineFunctionProperties(globalFuncs, fs.class, ScriptableObject.EMPTY); 
 
         return (Scriptable)newObj;
@@ -59,8 +60,24 @@ public class fs {
         SlowBuffer parent = (SlowBuffer)((NativeObject)args[1]).get("parent", (Scriptable)args[1]);
         StringBuffer buff = (StringBuffer)((ScriptableObject)parent).getAssociatedValue("buffer");
         String data = buff.substring(offset, offset + length);
-        System.out.print(data); // print to FD!!!
+        if (fd == 1) {
+            System.out.print(data); // print to FD!!!
+        } else if (fd == 2) {
+            System.err.print(data); // print to FD!!!
+        } else {
+            System.out.println("DUNNO FD: " + fd + " for: " + data);
+        }
                 if (sc != null) { /* make callback */ }
             return data.length();
+    }
+
+    public static Scriptable stat(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+        return x.newObject(thisObj, "Stats", args);
+        System.out.println("STAT: " + args[0])
+        File f = new File(args[0].toString());
+        if (f.isFile()) {
+        } else {
+            return null;
+        }
     }
 }
