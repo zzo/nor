@@ -89,8 +89,10 @@ function statPath(path) {
   var fs = NativeModule.require('fs');
   try {
       console.log("stat sync: " + path);
-    return fs.statSync(path);
-  } catch (ex) { console.log(ex); }
+    var x= fs.statSync(path);
+    console.log(x.toString());
+    return x;
+  } catch (ex) { console.log('EX: ' + ex); }
   return false;
 }
 

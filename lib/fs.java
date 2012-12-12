@@ -1,17 +1,58 @@
 import org.mozilla.javascript.*;
 import java.io.File;
+import java.io.FileInputStream;
+import java.util.Map;
+import java.util.HashMap;
 
 public class fs {
     private static final long serialVersionUID = 199970599527937692L;
+    private static ScriptableObject me;
+    private static Context context;
+    private static int fdCount = 3;
+    private static Map<Integer, FileInputStream> map;
 
     public static Scriptable getObject(Context cx, Scriptable scope) throws Exception {
         ScriptableObject newObj = (ScriptableObject)cx.newObject(scope);
         ScriptableObject.defineClass(newObj, Stats.class);
 
-        String[] globalFuncs = new String[] { "write", "stat" };
+        String[] globalFuncs = new String[] { "write", "stat", "lstat", "fstat", "open", "close" };
         newObj.defineFunctionProperties(globalFuncs, fs.class, ScriptableObject.EMPTY); 
 
+        newObj.associateValue("map", new HashMap<Integer, File>());
+        map = new HashMap<Integer, FileInputStream>();
+
         return (Scriptable)newObj;
+    }
+
+    // return binding.open(pathModule._makeLong(path), stringToFlags(flags), mode);
+    public static int open(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+        System.out.println("OPEN PATH: " + args[0]);
+        System.out.println("FLAGS: " + args[1]);
+        System.out.println("MODE: " + args[2]);
+
+        fdCount++;
+        try {
+            map.put(new Integer(fdCount), new FileInputStream(args[0].toString()));
+        } catch (Exception e) {
+            throw Context.throwAsScriptRuntimeEx(e);
+        }
+
+        return fdCount;
+    }
+
+    public static int close(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+        int fd = ((Integer)args[0]).intValue();
+        FileInputStream fis = map.remove(new Integer(fd));
+
+        if (fis != null) {
+            try {
+                fis.close();
+            } catch(Exception e) {
+                throw Context.throwAsScriptRuntimeEx(e);
+            }
+        }
+
+        return fd;
     }
 
     // bytesWritten = write(fd, data, position, enc, callback)
@@ -67,17 +108,23 @@ public class fs {
         } else {
             System.out.println("DUNNO FD: " + fd + " for: " + data);
         }
-                if (sc != null) { /* make callback */ }
-            return data.length();
+
+        if (sc != null) { /* make callback */ }
+        return data.length();
     }
 
     public static Scriptable stat(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-        return x.newObject(thisObj, "Stats", args);
-        System.out.println("STAT: " + args[0])
-        File f = new File(args[0].toString());
-        if (f.isFile()) {
-        } else {
-            return null;
-        }
+        FunctionObject ctor = (FunctionObject)thisObj.get("Stats", thisObj);
+        return ctor.construct(cx, thisObj, args);
+    }
+
+    public static Scriptable lstat(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+        FunctionObject ctor = (FunctionObject)thisObj.get("Stats", thisObj);
+        return ctor.construct(cx, thisObj, args);
+    }
+
+    public static Scriptable fstat(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+        FunctionObject ctor = (FunctionObject)thisObj.get("Stats", thisObj);
+        return ctor.construct(cx, thisObj, args);
     }
 }
