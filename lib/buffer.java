@@ -5,7 +5,7 @@ public class buffer {
 
     public static Scriptable getObject(Context cx, Scriptable scope) throws Exception {
         ScriptableObject newObj = (ScriptableObject)cx.newObject(scope);
-        ScriptableObject.defineClass(newObj, Buff.class);
+        //ScriptableObject.defineClass(newObj, Buff.class);
         ScriptableObject.defineClass(newObj, SlowBuffer.class);
         return (Scriptable)newObj;
     }

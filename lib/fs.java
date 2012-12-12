@@ -10,29 +10,34 @@ public class fs {
     private static Context context;
     private static int fdCount = 3;
     private static Map<Integer, FileInputStream> map;
+    private static Map<Integer, String> mapName;
 
     public static Scriptable getObject(Context cx, Scriptable scope) throws Exception {
         ScriptableObject newObj = (ScriptableObject)cx.newObject(scope);
         ScriptableObject.defineClass(newObj, Stats.class);
 
-        String[] globalFuncs = new String[] { "write", "stat", "lstat", "fstat", "open", "close" };
+        String[] globalFuncs = new String[] { "write", "stat", "lstat", "fstat", "open", "close", "read" };
         newObj.defineFunctionProperties(globalFuncs, fs.class, ScriptableObject.EMPTY); 
 
         newObj.associateValue("map", new HashMap<Integer, File>());
         map = new HashMap<Integer, FileInputStream>();
+        mapName = new HashMap<Integer, String>();
 
         return (Scriptable)newObj;
     }
 
     // return binding.open(pathModule._makeLong(path), stringToFlags(flags), mode);
     public static int open(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+        /*
         System.out.println("OPEN PATH: " + args[0]);
         System.out.println("FLAGS: " + args[1]);
         System.out.println("MODE: " + args[2]);
+        */
 
         fdCount++;
         try {
             map.put(new Integer(fdCount), new FileInputStream(args[0].toString()));
+            mapName.put(new Integer(fdCount), args[0].toString());
         } catch (Exception e) {
             throw Context.throwAsScriptRuntimeEx(e);
         }
@@ -41,8 +46,8 @@ public class fs {
     }
 
     public static int close(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-        int fd = ((Integer)args[0]).intValue();
-        FileInputStream fis = map.remove(new Integer(fd));
+        FileInputStream fis = map.remove(args[0]);
+        mapName.remove(args[0]);
 
         if (fis != null) {
             try {
@@ -52,7 +57,51 @@ public class fs {
             }
         }
 
-        return fd;
+        return 0;
+    }
+
+    /*
+     * bytesRead = fs.read(fd, buffer, offset, length, position)
+     *
+     * 0 fd        integer. file descriptor
+     * 1 buffer    instance of Buffer
+     * 2 offset    integer. offset to start reading into inside buffer
+     * 3 length    integer. length to read
+     * 4 position  file position - null for current position
+     */
+    public static int read(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+        int fd = ((Integer)args[0]).intValue();
+        ScriptableObject buffer = (ScriptableObject)args[1];
+        int offset = ((Double)args[2]).intValue();
+        int length = ((Double)args[3]).intValue();
+        //int position = ((Integer)args[4]).intValue();
+
+        /*
+        System.out.println("FD: " + fd);
+        System.out.println("BUF: " + buffer);
+        System.out.println("offset: " + offset);
+        System.out.println("length: " + length);
+        */
+        //System.out.println("pos: " + position);
+
+        FileInputStream fis = map.get(args[0]);
+        byte[] bytes = new byte[length];
+
+        if (fis != null) {
+            try {
+                int len = fis.read(bytes);
+                /*
+                System.out.println("READ " + len + " bytes");
+                System.out.println(new String(bytes));
+                */
+                ScriptableObject.callMethod(buffer, "utf8Write", new Object[] { new String(bytes), new Integer(offset), new Integer(len) } );
+                return len;
+            } catch (Exception e) {
+                throw Context.throwAsScriptRuntimeEx(e);
+            }
+        } else {
+            return 0;
+        }
     }
 
     // bytesWritten = write(fd, data, position, enc, callback)
@@ -102,6 +151,12 @@ public class fs {
         StringBuffer buff = (StringBuffer)((ScriptableObject)parent).getAssociatedValue("buffer");
         String data = buff.substring(offset, offset + length);
         if (fd == 1) {
+            /*
+            System.out.println("PRINTING:");
+            System.out.println("offset: " + offset);
+            System.out.println("length: " + length);
+            System.out.println("data: -" + data + "-");
+            */
             System.out.print(data); // print to FD!!!
         } else if (fd == 2) {
             System.err.print(data); // print to FD!!!
@@ -124,6 +179,7 @@ public class fs {
     }
 
     public static Scriptable fstat(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+        args[0] = mapName.get(args[0]);
         FunctionObject ctor = (FunctionObject)thisObj.get("Stats", thisObj);
         return ctor.construct(cx, thisObj, args);
     }

@@ -7,8 +7,9 @@ public class SlowBuffer extends ScriptableObject {
     public void jsConstructor(int length) {
         //System.out.println("JS CONS SLOW BUFFER: " + length);
         //this.buffer = new StringBuffer(length);
-        this.associateValue("buffer", new StringBuffer(length));
-        //System.out.println("done JS CONS SLOW BUFFER: " + length);
+        this.buffer = new StringBuffer(length);
+        //this.associateValue("buffer", new StringBuffer(length));
+        //System.out.println("creating buffer of length: " + length);
     }
 
     // be smarter
@@ -23,6 +24,7 @@ public class SlowBuffer extends ScriptableObject {
             Context cx, Scriptable thisObj, Object[] args, Function funObj) {
 
         /*
+        System.out.println("MAKE FAST BUFFER");
         Scriptable scope = ScriptableObject.getTopLevelScope(thisObj);
 
         Scriptable parent = (Scriptable)args[0];
@@ -63,17 +65,31 @@ public class SlowBuffer extends ScriptableObject {
     public int jsFunction_utf8Write(String str, int offset, int length) {
 
         /*
-        System.out.println("str now: " + str);
+        System.out.println("Writing into buffer:");
+        System.out.println("str now: -" + str + "-");
         System.out.println("off now: " + offset);
         System.out.println("len now: " + length);
-        System.out.println("buff len: " + this.buffer.length());
         */
+//        System.out.println("buff len: " + this.buffer.length());
 
-        ((StringBuffer)this.getAssociatedValue("buffer")).insert(offset, str);
-        //System.out.println("buffer now: " + ((StringBuffer)this.getAssociatedValue("buffer")));
+        /*
+        StringBuffer sb = ((StringBuffer)this.getAssociatedValue("buffer"));
+        if (offset + length > sb.length()) {
+            sb.setLength((offset + length) * 2);
+        }
+        */
+        //System.out.println("buff len: " + sb.length());
+
+        //((StringBuffer)this.getAssociatedValue("buffer")).insert(offset, str);
+        //return str.length();
+        buffer.insert(offset, str);
         return str.length();
     }
 
+    public String jsFunction_utf8Slice(int start, int end) {
+        //StringBuffer sb = ((StringBuffer)this.getAssociatedValue("buffer"));
+        return buffer.substring(start, end);
+    }
     /*
     public StringBuffer jsGet_buffer() {
         return this.buffer;

@@ -206,6 +206,13 @@ function Buffer(subject, encoding, offset) {
     return new Buffer(subject, encoding, offset);
   }
 
+  /*
+  console.log("NEW BUFFER: ");
+  console.log(subject);
+  console.log(encoding);
+  console.log(offset);
+  */
+
   var type;
 
   // Are we slicing?

@@ -88,10 +88,7 @@ var debug = Module._debug;
 function statPath(path) {
   var fs = NativeModule.require('fs');
   try {
-      console.log("stat sync: " + path);
-    var x= fs.statSync(path);
-    console.log(x.toString());
-    return x;
+    return fs.statSync(path);
   } catch (ex) { console.log('EX: ' + ex); }
   return false;
 }
@@ -449,6 +446,7 @@ Module.prototype._compile = function(content, filename) {
     }
   }
   var args = [self.exports, require, self, filename, dirname];
+  //console.log('executing compiled wrapper');
   return compiledWrapper.apply(self.exports, args);
 };
 

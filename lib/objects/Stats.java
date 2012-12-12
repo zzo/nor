@@ -4,10 +4,15 @@ import java.io.File;
 public class Stats extends ScriptableObject {
     private static final long serialVersionUID = 34297528882L;
     private File f;
+    private long size;
 
     public void jsConstructor(String file) {
-        System.out.println("NEW STATS Z: " + file);
         f = new File(file);
+        size = f.length();
+    }
+
+    public long jsGet_size() {
+        return size;
     }
 
     @Override
