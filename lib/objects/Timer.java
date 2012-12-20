@@ -31,7 +31,7 @@ public class Timer extends ScriptableObject {
     }
 
     public void start(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-        int timeout = ((Double)args[0]).intValue();
+        int timeout = ((Number)args[0]).intValue();
         boolean repeat = ((Boolean)args[1]).booleanValue();
 
         TimerTask timerTask = new DoneTask(thisObj);

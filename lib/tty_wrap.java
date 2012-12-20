@@ -22,17 +22,17 @@ public class tty_wrap {
     }
 
     public static String guessHandleType(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-        int fd = ((Double)args[0]).intValue();
+        int fd = ((Number)args[0]).intValue();
         if (args[0].toString().equals("0")) {
-            System.out.println("CHECK STDIN");
+            //System.out.println("CHECK STDIN");
         }
 
         if (args[0].toString().equals("1")) {
-            System.out.println("CHECK STDOUT");
+            //System.out.println("CHECK STDOUT");
         }
 
-        if (args[0].toString().equals("0")) {
-            System.out.println("CHECK STDERR");
+        if (args[0].toString().equals("2")) {
+            //System.out.println("CHECK STDERR");
         }
         if (isaTTY(fd)) {
             return "TTY";
@@ -42,7 +42,7 @@ public class tty_wrap {
     }
 
     public static boolean isTTY(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-        int fd = ((Double)args[0]).intValue();
+        int fd = ((Number)args[0]).intValue();
         return isaTTY(fd);
     }
 }

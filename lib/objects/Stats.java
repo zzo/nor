@@ -8,11 +8,19 @@ public class Stats extends ScriptableObject {
 
     public void jsConstructor(String file) {
         f = new File(file);
-        size = f.length();
+        if (f.exists()) {
+            size = f.length();
+        } else {
+            Context.throwAsScriptRuntimeEx(new Exception("File " + file + " does not exist"));
+        }
     }
 
     public long jsGet_size() {
         return size;
+    }
+
+    public boolean jsFunction_isDirectory() {
+        return f.isDirectory();
     }
 
     @Override

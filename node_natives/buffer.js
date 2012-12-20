@@ -352,6 +352,7 @@ Buffer.prototype.write = function(string, offset, length, encoding) {
       length = remaining;
     }
   }
+  
   encoding = String(encoding || 'utf8').toLowerCase();
 
   var ret;

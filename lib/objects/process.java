@@ -31,7 +31,7 @@ public class process extends ScriptableObject {
             Scriptable stdin = Context.enter().newObject(this);
             this.put("stdin", this, stdin);
 
-            String [] processFuncs = { "binding", "cwd", "_needTickCallback" };
+            String [] processFuncs = { "binding", "cwd", "_needTickCallback", "reallyExit" };
             this.defineFunctionProperties(processFuncs, this.getClass(), EMPTY);
 
             // Someday suck this from real ENV
@@ -66,6 +66,10 @@ public class process extends ScriptableObject {
 
     @Override
     public String getClassName() { return "process"; }
+
+    public static void reallyExit(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+        System.exit(((Number)args[0]).intValue());
+    }
 
     public static Scriptable binding(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
         String module = args[0].toString();

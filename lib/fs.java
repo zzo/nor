@@ -28,12 +28,6 @@ public class fs {
 
     // return binding.open(pathModule._makeLong(path), stringToFlags(flags), mode);
     public static int open(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-        /*
-        System.out.println("OPEN PATH: " + args[0]);
-        System.out.println("FLAGS: " + args[1]);
-        System.out.println("MODE: " + args[2]);
-        */
-
         fdCount++;
         try {
             map.put(new Integer(fdCount), new FileInputStream(args[0].toString()));
@@ -70,19 +64,11 @@ public class fs {
      * 4 position  file position - null for current position
      */
     public static int read(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-        int fd = ((Integer)args[0]).intValue();
+        int fd = ((Number)args[0]).intValue();
         ScriptableObject buffer = (ScriptableObject)args[1];
-        int offset = ((Double)args[2]).intValue();
-        int length = ((Double)args[3]).intValue();
-        //int position = ((Integer)args[4]).intValue();
-
-        /*
-        System.out.println("FD: " + fd);
-        System.out.println("BUF: " + buffer);
-        System.out.println("offset: " + offset);
-        System.out.println("length: " + length);
-        */
-        //System.out.println("pos: " + position);
+        int offset = ((Number)args[2]).intValue();
+        int length = ((Number)args[3]).intValue();
+        //int position = ((Number)args[4]).intValue();
 
         FileInputStream fis = map.get(args[0]);
         byte[] bytes = new byte[length];
@@ -90,10 +76,6 @@ public class fs {
         if (fis != null) {
             try {
                 int len = fis.read(bytes);
-                /*
-                System.out.println("READ " + len + " bytes");
-                System.out.println(new String(bytes));
-                */
                 ScriptableObject.callMethod(buffer, "utf8Write", new Object[] { new String(bytes), new Integer(offset), new Integer(len) } );
                 return len;
             } catch (Exception e) {
@@ -114,58 +96,33 @@ public class fs {
     // // 4 position  if integer, position to write at in the file.
     // //             if null, write from the current position
     public static int write(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-        int fd = ((Double)args[0]).intValue();
-        int offset = ((Double)args[2]).intValue();
-        int length = ((Integer)args[3]).intValue();
+        int fd = ((Number)args[0]).intValue();
+        int offset = ((Number)args[2]).intValue();
+        int length = ((Number)args[3]).intValue();
         int position = 0;
         Scriptable sc = null;
 
-        //System.out.println(thisObj);
-        //System.out.println("BUFF: " + ((ScriptableObject)args[1]).getProperty((Scriptable)args[1], "buffer"));
-        //System.out.println("BUFF: " + ScriptableObject.callMethod((ScriptableObject)args[1], "getBuffer", null));
         if (!args[4].equals(Context.getUndefinedValue())) {
-            position = ((Double)args[4]).intValue();
+            position = ((Number)args[4]).intValue();
         }
 
         if (args.length > 5 && !args[5].equals(Context.getUndefinedValue())) {
             sc = (Scriptable)args[5];
         }
 
-        /*
-        java.util.Set<java.lang.Object> vals = ((NativeObject)args[1]).keySet();
-        java.util.Iterator<Object> it = vals.iterator();
-        Object[] kk = ((ScriptableObject)args[1]).getAllIds();
-        for (int i = 0; i < kk.length; i++) {
-            System.out.println("K: " + kk[i]);
-        }
-        while (it.hasNext()) {
-            Object o = it.next();
-            System.out.println(o + " = " + ((NativeObject)args[1]).get(o.toString(), (Scriptable)args[1]));
-        }
-        System.out.println(((NativeObject)args[1]).getClassName());
-        if (args.length > 4) {
-            // wrapper
-        }
-        */
         SlowBuffer parent = (SlowBuffer)((NativeObject)args[1]).get("parent", (Scriptable)args[1]);
-        StringBuffer buff = (StringBuffer)((ScriptableObject)parent).getAssociatedValue("buffer");
-        String data = buff.substring(offset, offset + length);
+        int off = ScriptRuntime.toInt32(((Scriptable)args[1]).get("offset", (Scriptable)args[1]));
+        byte[] bytes = parent.getBytes(off, length);
         if (fd == 1) {
-            /*
-            System.out.println("PRINTING:");
-            System.out.println("offset: " + offset);
-            System.out.println("length: " + length);
-            System.out.println("data: -" + data + "-");
-            */
-            System.out.print(data); // print to FD!!!
+            System.out.write(bytes, 0, length);
         } else if (fd == 2) {
-            System.err.print(data); // print to FD!!!
+            System.err.write(bytes, 0, length);
         } else {
-            System.out.println("DUNNO FD: " + fd + " for: " + data);
+            System.err.println("DUNNO FD: " + fd + " for: " + bytes);
         }
 
         if (sc != null) { /* make callback */ }
-        return data.length();
+        return length;
     }
 
     public static Scriptable stat(Context cx, Scriptable thisObj, Object[] args, Function funObj) {

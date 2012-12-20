@@ -362,6 +362,7 @@ fs.read = function(fd, buffer, offset, length, position, callback) {
     callback && callback(err, bytesRead || 0, buffer);
   }
 
+  //console.log('binding read: ' + fd);
   binding.read(fd, buffer, offset, length, position, wrapper);
 };
 
@@ -378,6 +379,13 @@ fs.readSync = function(fd, buffer, offset, length, position) {
     offset = 0;
   }
 
+  /*
+  console.log('goign to read...');
+  console.log(fd);
+  console.log(offset);
+  if (length) console.log(length);
+  if (position) console.log(position);
+  */
   var r = binding.read(fd, buffer, offset, length, position);
   if (!legacy) {
     return r;

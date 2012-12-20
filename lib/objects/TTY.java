@@ -47,7 +47,7 @@ public class TTY extends ScriptableObject {
         String cols = System.getenv("COLUMNS");
 
         if (lines != null && cols != null) {
-            System.out.println("L: " + lines + " cols: " + cols);
+            //System.out.println("L: " + lines + " cols: " + cols);
             Object[] res = new Object[] { cols, lines };
             return Context.enter().newArray(this, res);
         } else {
